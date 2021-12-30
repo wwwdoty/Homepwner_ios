@@ -18,10 +18,10 @@
 
 + (instancetype)sharedStore {
     static BNRItemStore *shareStore = nil;
-    if (!shareStore) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         shareStore = [[self alloc] initPrivate];
-    }
-    
+    });
     return shareStore;
 }
 
@@ -33,13 +33,18 @@
 - (instancetype)initPrivate {
     self = [super init];
     if (self) {
-        _privateItems = [[NSMutableArray alloc] init];
+        NSString *path = [self itemArchivePath];
+        _privateItems = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray class] fromData:[NSData dataWithContentsOfFile:path] error:nil];
+        if (!_privateItems) {
+            _privateItems = [[NSMutableArray alloc] init];
+        }
     }
     return self;
 }
 
 - (BNRItem *)createItem {
     BNRItem *item = [BNRItem randomItem];
+//    BNRItem *item = [[BNRItem alloc] init];
     [self.privateItems addObject:item];
     return item;
 }
@@ -61,6 +66,20 @@
 
 - (NSArray *)allItems {
     return  [self.privateItems copy];
+}
+
+- (NSString *)itemArchivePath {
+    // 第一个参数是NSDocumentDirectory  不是NSDocumetationDirectory
+    NSArray *documentDirectories = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    // 从documentDirectories数组获取第一个，也是唯一一个文档目录路径
+    NSString *documentDirectory = [documentDirectories firstObject];
+    return [documentDirectory stringByAppendingPathComponent:@"item.archive"];
+}
+
+- (BOOL)saveChanges {
+    NSString *path = [self itemArchivePath];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.privateItems requiringSecureCoding:NO error:nil];
+    return [data writeToFile:path atomically:YES];
 }
 
 @end

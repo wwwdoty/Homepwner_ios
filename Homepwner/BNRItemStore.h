@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeItem:(BNRItem *)item;
 - (void)moveItemAtIndex:(NSUInteger)fromIndex toIndex:(NSUInteger)toIndex;
 
+/// 保存BNRItem对象
+- (BOOL)saveChanges;
 @end
 
 NS_ASSUME_NONNULL_END

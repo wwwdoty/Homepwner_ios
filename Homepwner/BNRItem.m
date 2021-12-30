@@ -7,11 +7,6 @@
 
 #import "BNRItem.h"
 
-@interface BNRItem ()
-
-
-@end
-
 @implementation BNRItem
 
 + (instancetype)randomItem {
@@ -33,9 +28,6 @@
                                        valueInDollars:randomValue
                                          serialNumber:randomSerialNumber];
     return newItem;
-
-   
-    
 }
 
 - (instancetype)initWithItemName:(NSString *)name
@@ -75,5 +67,29 @@
     NSString *descriptionString = [[NSString alloc] initWithFormat:@"%@ (%@): Worth $%d, recorded on %@", self.itemName, self.serialNumber, self.valueInDollars, self.dateCreated];
     return descriptionString;
 }
+
+#pragma mark - NSCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        _itemName = [coder decodeObjectForKey:@"itemName"];
+        _serialNumber = [coder decodeObjectForKey:@"serialNumber"];
+        _itemKey = [coder decodeObjectForKey:@"itemKey"];
+        _dateCreated = [coder decodeObjectForKey:@"dateCreated"];
+        _valueInDollars = [coder decodeIntForKey:@"valueInDollars"];
+
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)Coder {
+    [Coder encodeObject:self.itemName forKey:@"itemName"];
+    [Coder encodeObject:self.serialNumber forKey:@"serialNumber"];
+    [Coder encodeObject:self.dateCreated forKey:@"dateCreated"];
+    [Coder encodeObject:self.itemKey forKey:@"itemKey"];
+    [Coder encodeInt:self.valueInDollars forKey:@"valueInDollars"];
+}
+
 
 @end

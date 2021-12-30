@@ -9,9 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BNRItem : NSObject
+@interface BNRItem : NSObject <NSCoding>
 
-@property(nonatomic, strong) BNRItem *containedItem;
 @property(nonatomic, copy) NSString *itemName;
 @property(nonatomic, copy) NSString *serialNumber;
 @property(nonatomic, assign) int valueInDollars;

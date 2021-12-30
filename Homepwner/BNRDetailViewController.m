@@ -114,7 +114,7 @@
         [self.view  addSubview:_detailView];
         
         [self.view addSubview:({
-            UIToolbar *bar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, _detailView.frame.size.height - 80, _detailView.frame.size.width, 50)];
+            UIToolbar *bar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, _detailView.frame.size.height - 50, _detailView.frame.size.width, 50)];
             UIBarButtonItem *cameraItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(takePicture:)];
             [bar setItems:@[cameraItem]];
             _toolBar = bar;
