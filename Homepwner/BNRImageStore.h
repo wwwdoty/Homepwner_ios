@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)deleteImageForKey:(NSString *)key;
 
+/// 存储照片的路径
+/// @param key 图片标识
+- (NSString *)imagePathForKey:(NSString *)key;
 @end
 
 NS_ASSUME_NONNULL_END

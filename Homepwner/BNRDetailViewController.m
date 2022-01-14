@@ -9,6 +9,10 @@
 #import "BNRItem.h"
 #import "BNRImageStore.h"
 
+#define RGBA(r, g, b, a) [UIColor colorWithRed:(r) / 255.0 green:(g) / 255.0 blue:(b) / 255.0 alpha:(a)]
+#define RGB(r, g, b) RGBA(r, g, b, 1.0f)
+#define HEX(rgb) RGB((rgb) >> 16 & 0xff, (rgb) >> 8 & 0xff, (rgb)&0xff)
+
 @interface BNRDetailView : UIControl
 
 @property(nonatomic, strong)UITextField *nameField;
@@ -43,7 +47,7 @@
 }
 
 - (void)setUpSubViews {
-    CGFloat leftX = 78;
+    CGFloat leftX = 58;
     CGFloat topY = 115;
     UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(leftX, topY, 0, 0)];
     nameLabel.text = @"Name";
@@ -133,7 +137,7 @@
     BNRItem *item = self.item;
     self.detailView.nameField.text = item.itemName;
     self.detailView.serialNumberField.text = item.serialNumber;
-    self.detailView.valueField.text =[NSString stringWithFormat:@"%d", item.valueInDollars];
+    self.detailView.valueField.text =[NSString stringWithFormat:@"%ld", (long)item.valueInDollars];
     static NSDateFormatter *dateFormatter = nil;
     if (!dateFormatter) {
         dateFormatter = [[NSDateFormatter alloc] init];
@@ -193,9 +197,11 @@
 - (void)imagePickerController:(UIImagePickerController *)picker
 didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey,id> *)info {
     UIImage *image = info[UIImagePickerControllerOriginalImage];
+    [self.item setThumbnailFromImage:image];
     // 以itemkey 为key 将照片存入BNRImageStore
     [[BNRImageStore sharedStore] setImage:image forKey:self.item.itemKey];
     self.detailView.photoView.image = image;
+    // 让被present出来的控制器消失
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

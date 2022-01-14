@@ -34,7 +34,19 @@
     self = [super init];
     if (self) {
         NSString *path = [self itemArchivePath];
-        _privateItems = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray class] fromData:[NSData dataWithContentsOfFile:path] error:nil];
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        NSError *error;
+        NSSet *clsSet = [NSSet setWithObjects:[NSMutableArray class],[BNRItem class], [NSDate class], [UIImage class], nil];
+        _privateItems = [NSKeyedUnarchiver unarchivedObjectOfClasses:clsSet fromData:data error:&error];
+        // 这种写法出现的提示
+        // NSSecureCoding allowed classes list contains [NSObject class], which bypasses security by allowing any
+        // Objective-C class to be implicitly decoded. Consider reducing the scope of allowed classes during decoding by
+        // listing only the classes you expect to decode, or a more specific base class than NSObject. This will be
+        //  disallowed in the future
+//        _privateItems = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSObject class] fromData:data error:&error];
+        if (error) {
+            NSLog(@"error occured when unarchived objects: %@",error);
+        }
         if (!_privateItems) {
             _privateItems = [[NSMutableArray alloc] init];
         }
@@ -69,7 +81,6 @@
 }
 
 - (NSString *)itemArchivePath {
-    // 第一个参数是NSDocumentDirectory  不是NSDocumetationDirectory
     NSArray *documentDirectories = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     // 从documentDirectories数组获取第一个，也是唯一一个文档目录路径
     NSString *documentDirectory = [documentDirectories firstObject];
@@ -78,7 +89,14 @@
 
 - (BOOL)saveChanges {
     NSString *path = [self itemArchivePath];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.privateItems requiringSecureCoding:NO error:nil];
+    NSError *error;
+    // 1.创建一个NSKeyedArchiver对象 2 向privateItem发送encoderWithCoder消息，传入NSKeyedArchiver对象作为coder
+    // 3. privateItems的encodeWithCoder:方法会向其包含的所有BNRItem对象发送encodeWithCoder:消息，
+    //    并传入同一个NSKeyedArchiver对象。这些BNRItem对象都会将其属性编码至同一个NSKeyedArchiver对象
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.privateItems requiringSecureCoding:YES error:&error];
+    if (error) {
+        NSLog(@"error occured when save changes: %@",error);
+    }
     return [data writeToFile:path atomically:YES];
 }
 

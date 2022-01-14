@@ -7,10 +7,13 @@
 
 #import "BNRItemsViewController.h"
 #import "BNRItem.h"
+#import "BNRItemCell.h"
 #import "BNRItemStore.h"
+#import "BNRImageStore.h"
+#import "BNRImageViewController.h"
 
-@interface BNRItemsViewController ()
-
+@interface BNRItemsViewController () <UIPopoverControllerDelegate>
+@property(nonatomic, strong)UIPopoverController *imagePopover;
 @end
 
 @implementation BNRItemsViewController
@@ -31,7 +34,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
+    [self.tableView registerClass:[BNRItemCell class] forCellReuseIdentifier:@"BNRItemCell"];
     
 //    UIView *header = self.headerView;
 //    [self.tableView setTableHeaderView:header];
@@ -50,13 +53,26 @@
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
+    BNRItemCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BNRItemCell" forIndexPath:indexPath];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"UITableViewCell"];
+        cell = [[BNRItemCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BNRItemCell"];
     }
     NSArray *items = [[BNRItemStore sharedStore] allItems];
     BNRItem *item = items[indexPath.row];
-    cell.textLabel.text = [item description];
+//    cell.textLabel.text = [item description];
+    // 根据BNRItem 设置BNRItemCell对象
+    [cell layoutSubviewWithItem:item];
+    cell.actionBlock = ^{
+        NSLog(@"Going to shwo the image for %@", item);
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            NSString *itemKey = item.itemKey;
+            UIImage *img = [[BNRImageStore sharedStore] imageForKey:itemKey];
+            if (!img) {
+                return;
+            }
+            // 根据UITableView对象的坐标系
+        }
+    };
     return cell;
 }
 
